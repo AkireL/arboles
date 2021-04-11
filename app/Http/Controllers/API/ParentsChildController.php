@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Node;
+use App\Main\Node\Domain\WhereNodeDomain;
+use App\Main\Node\Domain\WhereNodesDomain;
 use Illuminate\Http\Request;
 
 class ParentsChildController extends Controller
@@ -12,8 +13,11 @@ class ParentsChildController extends Controller
     {
         try {
             $index = $request->input('page') ?? 0;
-            $byPage = 20;
-            $NodesFathers = Node::where('id', $nodeId)->first();
+            $byPage = 3;
+            $whereNodeDomain = new WhereNodeDomain();
+
+            // Search node by Id
+            $NodesFathers = ($whereNodeDomain)(['id' => $nodeId]);
             if (is_null($NodesFathers)) {
                 throw new \Exception('Árbol vacio');
             }
@@ -21,7 +25,6 @@ class ParentsChildController extends Controller
             $inicio = ($byPage * $index);
 
             return response()->json(($data->slice($inicio, $byPage))->all(), 200);
-            // print_r($data);
         } catch (\Exception $ex) {
             \Log::error('ex: '.print_r($ex->getMessage(), 1));
             $code = (int) $ex->getCode();
@@ -43,7 +46,7 @@ class ParentsChildController extends Controller
         $children = [];
         $tree[] = $node;
 
-        $data = Node::where('id', $node['parent_id'])->get();
+        $data = (new WhereNodesDomain())(['id' => $node['parent_id']]);
         foreach ($data as $d) {
             $first = $this->getParents($d->toArray());
             $tree = array_merge($tree, $first);

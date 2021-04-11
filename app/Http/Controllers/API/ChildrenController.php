@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Main\Node\Domain\WhereNodeDomain;
+use App\Main\Node\Domain\WhereNodesDomain;
 use App\Node;
 use Illuminate\Http\Request;
 
@@ -13,12 +15,15 @@ class ChildrenController extends Controller
         try {
             $index = $request->input('page') ?? 0;
             $byPage = 3;
+            $whereNodeDomain = new WhereNodeDomain();
 
-            $NodesFathers = Node::where('parent_id', $nodeId)->first();
+            //Search node with by parentId
+            $NodesFathers = ($whereNodeDomain)(['parent_id' => $nodeId, 'deleted_at' => null]);
             if (is_null($NodesFathers)) {
                 throw new \Exception('Árbol vacio');
             }
-            $NodeFather = Node::where('id', $nodeId)->first();
+            // Search node by Id
+            $NodeFather = $whereNodeDomain(['id' => $nodeId, 'deleted_at' => null]);
 
             $data = collect(array_merge([$NodeFather->toArray()], $this->getChild($NodesFathers->toArray())));
             $inicio = ($byPage * $index);
@@ -45,7 +50,7 @@ class ChildrenController extends Controller
         $children = [];
         $tree[] = $node;
 
-        $data = Node::where('parent_id', $node['id'])->get();
+        $data = (new WhereNodesDomain())(['parent_id' => $node['id'], 'deleted_at' => null]);
         foreach ($data as $d) {
             $first = $this->getChild($d->toArray());
             $tree = array_merge($tree, $first);
@@ -53,22 +58,4 @@ class ChildrenController extends Controller
 
         return $tree;
     }
-
-    // private function getChild2($id)
-    // {
-    //     $tree = [];
-    //     $children = [];
-    //     $tree['parent'] = $id;
-
-    //     $data = Node::where('parent_id', $id)->get();
-    //     foreach ($data as $d) {
-    //         $first = $this->getChild2($d->id);
-    //         array_push($children, $first);
-    //     }
-    //     if (count($children) > 0) {
-    //         $tree['children'] = $children;
-    //     }
-
-    //     return $tree;
-    // }
 }
