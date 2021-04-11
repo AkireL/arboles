@@ -1,0 +1,10 @@
+
+@url2 = http://localhost:8000/api/v1/nodes/1/children
+GET {{url2}} HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+
+{
+    "page":0
+}
+
