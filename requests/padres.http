@@ -1,5 +1,5 @@
 
-@url2 = http://localhost:8000/api/v1/nodes/12/parents
+@url2 = http://localhost:8000/api/v1/nodes/11/parents
 GET {{url2}} HTTP/1.1
 Accept: application/json
 Content-Type: application/json

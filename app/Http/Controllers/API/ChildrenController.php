@@ -10,9 +10,11 @@ use Illuminate\Http\Request;
 
 class ChildrenController extends Controller
 {
-    public function index(int $nodeId, Request $request)
+    public function index(Node $node, Request $request)
     {
         try {
+
+            $nodeId = $node->id;
             $index = $request->input('page') ?? 0;
             $byPage = 3;
             $whereNodeDomain = new WhereNodeDomain();
@@ -30,17 +32,17 @@ class ChildrenController extends Controller
 
             return response()->json(($data->slice($inicio, $byPage))->all(), 200);
         } catch (\Exception $ex) {
-            \Log::error('ex: '.print_r($ex->getMessage(), 1));
+            \Log::error('ex: ' . print_r($ex->getMessage(), 1));
             $code = (int) $ex->getCode();
             if (!(($code >= 400 && $code <= 422) || ($code >= 500 && $code <= 503))) {
                 $code = 500;
             }
 
             return response()->json([
-            'code' => (int) $code,
-            'message' => $ex->getMessage(),
-            'data' => $ex->getMessage(),
-        ], $code);
+                'code' => (int) $code,
+                'message' => $ex->getMessage(),
+                'data' => $ex->getMessage(),
+            ], $code);
         }
     }
 
